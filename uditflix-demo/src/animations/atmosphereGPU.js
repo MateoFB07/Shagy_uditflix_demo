@@ -1,0 +1,14 @@
+import { createSurface } from './gpu.js';
+const vertex=`attribute vec2 aPosition;varying vec2 vUV;void main(){gl_Position=vec4(aPosition,0.,1.);vUV=vec2(aPosition.x*.5+.5,.5-aPosition.y*.5);}`;
+const fragment=`precision highp float;varying vec2 vUV;uniform sampler2D uNoise;uniform float uTime,uDrift;uniform vec3 uColor0,uColor1,uColor2;
+float rnd(vec2 p){return texture2D(uNoise,(mod(p,128.)+.5)/128.).r;}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(rnd(i),rnd(i+vec2(1,0)),f.x),mix(rnd(i+vec2(0,1)),rnd(i+vec2(1,1)),f.x),f.y);}
+float fb(vec2 p){return .56*noise(p)+.27*noise(p*2.03+vec2(19,-11))+.12*noise(p*4.17+vec2(-7,23))+.05*noise(p*8.31+vec2(13,5));}
+float g(float x){return exp(-x*x);}
+void main(){float u=vUV.x,v=vUV.y,x=u*4.7+uDrift*1.9,t=uTime;float n=fb(vec2(x*.7+17.,t*.38+4.))-.5,m=fb(vec2(x*.58-13.,t*.32+33.))-.5;
+float y1=.49+.12*sin(x*1.18+t*.48)+.045*sin(x*2.6-t*.29)+n*.16,y2=.63+.10*sin(x*1.34-t*.36+2.4)+.043*sin(x*2.9+t*.21)+m*.14,y3=.38+.095*sin(x*.94+t*.31+4.3)+m*.11;
+float w1=.085+.033*(.5+.5*sin(x*1.6+t*.22)),w2=.10+.035*(.5+.5*sin(x*1.4-t*.24+1.)),w3=.064+.025*(.5+.5*sin(x*1.1+t*.33+2.));
+float fade=g((u-.52)/.325)*smoothstep(0.,.18,u)*smoothstep(0.,.18,1.-u);float warp=(noise(vec2(x*1.18+4.,v*3.8+t*.19))-.5)*.041;float z1=(v-y1+warp)/w1,z2=(v-y2-warp*.8)/w2,z3=(v-y3+warp*.5)/w3;
+float a=(.46*g(z1)+.21*g((z1+.43)*1.8))*fade,b=(.36*g(z2)+.15*g((z2-.45)*1.5))*fade,c=(.23*g(z3)+.09*g((z3+.35)*1.5))*fade,haze=.09*g((v-.53)/.25)*fade,weight=a+b+c+haze;
+float alpha=(1.-exp(-weight*1.42))*smoothstep(0.,.15,v)*smoothstep(0.,.14,1.-v);vec3 tint=(uColor0*a+uColor1*(b+haze)+uColor2*c)/max(weight,.00001);gl_FragColor=vec4(tint*.83+15./255.,alpha);}`;
+export function createAtmosphereGPU(canvas,table){const gpu=createSurface(canvas,vertex,fragment);if(!gpu)return null;const {gl,program}=gpu;const b=gpu.buffer(),tex=gpu.texture();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);const a=gl.getAttribLocation(program,'aPosition');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,128,128,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,Uint8Array.from(table,x=>Math.round(x*255)));for(const p of [gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER])gl.texParameteri(gl.TEXTURE_2D,p,gl.NEAREST);for(const p of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,p,gl.CLAMP_TO_EDGE);gl.uniform1i(gpu.uniform('uNoise'),0);const t=gpu.uniform('uTime'),d=gpu.uniform('uDrift'),colors=[0,1,2].map(i=>gpu.uniform('uColor'+i));return {...gpu,draw(time,drift,current){gl.uniform1f(t,time);gl.uniform1f(d,drift);for(let i=0;i<3;i++)gl.uniform3f(colors[i],...current[i].map(x=>x/255));gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}};}

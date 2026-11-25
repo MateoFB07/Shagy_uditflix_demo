@@ -1,0 +1,5 @@
+{
+  "name": "uditflix-demo",
+  "type": "react-vite",
+  "integrations": { "capacitor": {} }
+}

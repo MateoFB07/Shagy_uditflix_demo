@@ -1,0 +1,6 @@
+/* The accordion uses native document scrolling, not the IonContent shadow scroller. */
+html, body { height: auto; min-height: 100%; overflow-y: visible; }
+body { position: static; overflow-x: hidden; }
+#root, .udit-root { min-height: 100vh; }
+ion-app.udit-app, .udit-app { position: relative; display: block; width: 100%; height: auto; min-height: 100vh; contain: none; overflow: visible; }
+.comic[hidden] { display: none !important; }

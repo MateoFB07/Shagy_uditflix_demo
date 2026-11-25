@@ -1,0 +1,22 @@
+/* Only hero atmosphere and integrated ribbon caption. Original engines unchanged. */
+.hero{position:relative;isolation:isolate;--fog-strength:.36;}
+.ud-atmosphere{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;opacity:var(--fog-strength);transition:opacity .65s ease;mask-image:linear-gradient(to bottom,transparent 0%,#000 22%,#000 66%,transparent 100%);}
+/* Animated volumetric-style density, independent of the ribbon renderer. */
+.ud-smoke-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;cursor:default;filter:blur(15px);transform:scale(1.035);}
+.hero .stage{background:transparent;}
+.hero .ribbonbar{border:0;background:transparent;box-shadow:none;}
+.hero .index{gap:8px;align-items:center}.hero .index b{font-family:Georgia,serif;font-size:clamp(28px,3vw,40px);font-weight:400;letter-spacing:-.055em;line-height:1;}
+.hero .index>span{align-self:center;}.hero .feature{border:0;padding-top:0;gap:clamp(10px,1.5vw,20px)}
+.hero .selected{font-family:Georgia,serif;font-weight:400;font-size:clamp(18px,2vw,27px);letter-spacing:-.025em;}
+.hero .textbtn{border-bottom-color:#f1ede535}.hero .textbtn:hover{border-bottom-color:var(--accent)}
+.ud-ribbon-dots{display:flex;align-items:center;gap:7px;margin-left:clamp(4px,1.2vw,17px);}
+.ud-ribbon-dots i{width:5px;height:5px;border-radius:50%;background:var(--ink);opacity:.25;transition:opacity .4s,transform .4s;}
+.ud-ribbon-dots i.is-current{opacity:1;transform:scale(1.15);}
+.hero .controls button:hover{background:#ffffff0b;}
+.ud-atmosphere-lab{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));right:max(12px,env(safe-area-inset-right));z-index:30;display:flex;align-items:center;gap:8px;background:#1b1a1def;border:1px solid #ffffff24;border-radius:9px;padding:6px 9px;color:#eee;box-shadow:0 4px 22px #0002;font-size:12px;backdrop-filter:blur(12px);}
+.ud-atmosphere-lab select{color:inherit;background:#27262a;border:0;border-radius:5px;padding:8px 5px;font:inherit;cursor:pointer;min-height:34px;}
+.ud-atmosphere-lab select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+body.ud-fog-away .ud-atmosphere-lab{visibility:hidden;}
+body:has(#udMenu.is-open) .ud-atmosphere-lab,body:has(dialog[open]) .ud-atmosphere-lab{visibility:hidden;}
+@media(max-width:520px){.hero .index b{font-size:28px}.hero .index{gap:5px}.ud-ribbon-dots{gap:5px;margin-left:5px}.ud-ribbon-dots i{width:4px;height:4px}.hero .selected{font-size:19px}.hero .feature{padding-top:3px;}.ud-atmosphere-lab{position:relative;bottom:auto;right:auto;width:max-content;margin:8px var(--gutter) 0 auto;font-size:11px;}}
+@media(prefers-reduced-motion:reduce){.ud-atmosphere,.ud-ribbon-dots i{transition:none!important;}}
